@@ -1,42 +1,72 @@
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+// URL de ton API Render
+const API_URL = "https://pollybuzz-api.onrender.com";
 
+// =======================
+//     LOGIN
+// =======================
+async function login() {
+  const username = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
   const resultDiv = document.getElementById("result");
+
   resultDiv.innerHTML = "Connexion en cours...";
 
   try {
-    // 1) Connexion → ton API génère un token
-    const loginRes = await fetch("https://ton-api.com/login", {
+    const res = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ username, password })
     });
 
-    const loginData = await loginRes.json();
+    const data = await res.json();
 
-    if (!loginData.token) {
-      resultDiv.innerHTML = "Erreur : identifiants invalides.";
+    if (!data.token) {
+      resultDiv.innerHTML = "❌ Identifiants invalides.";
       return;
     }
 
-    const token = loginData.token;
+    resultDiv.innerHTML = `
+      ✅ Connexion réussie !<br><br>
+      <strong>Ton token Pollybuzz :</strong><br>
+      <code>${data.token}</code><br><br>
+      Copie-le dans Roblox pour te connecter.
+    `;
+  } catch (err) {
+    resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
+  }
+}
 
-    // 2) Sauvegarde du token dans ton API
-    await fetch("https://ton-api.com/saveToken", {
+// =======================
+//     REGISTER
+// =======================
+async function register() {
+  const username = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const resultDiv = document.getElementById("result");
+
+  resultDiv.innerHTML = "Création du compte...";
+
+  try {
+    const res = await fetch(`${API_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, token })
+      body: JSON.stringify({ username, password })
     });
 
-    // 3) Affichage du token au joueur
-    resultDiv.innerHTML = `
-      <strong>Ton token Pollybuzz :</strong><br><br>
-      <code>${token}</code><br><br>
-      Copie-le et colle-le dans Roblox.
-    `;
+    const data = await res.json();
 
+    if (!data.token) {
+      resultDiv.innerHTML = `❌ Erreur : ${data.error}`;
+      return;
+    }
+
+    resultDiv.innerHTML = `
+      🎉 Compte créé avec succès !<br><br>
+      <strong>Ton token Pollybuzz :</strong><br>
+      <code>${data.token}</code><br><br>
+      Garde-le précieusement pour Roblox.
+    `;
   } catch (err) {
-    resultDiv.innerHTML = "Erreur de connexion au serveur.";
+    resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
   }
 }
