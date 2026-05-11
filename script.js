@@ -1,3 +1,4 @@
+// URL de ton API Render
 const API_URL = "https://pollybuzz-api.onrender.com";
 
 // =======================
@@ -19,12 +20,14 @@ async function login() {
 
     const data = await res.json();
 
-    if (!data.token) {
-      resultDiv.innerHTML = "❌ Identifiants invalides.";
+    if (!res.ok) {
+      resultDiv.innerHTML = `❌ ${data.error}`;
       return;
     }
 
+    // Sauvegarde du token
     localStorage.setItem("token", data.token);
+
     resultDiv.innerHTML = `
       ✅ Connexion réussie !<br><br>
       <button onclick="showProfile()">Voir mon profil</button>
@@ -53,14 +56,14 @@ async function register() {
 
     const data = await res.json();
 
-    if (!data.token) {
-      resultDiv.innerHTML = `❌ Erreur : ${data.error}`;
+    if (!res.ok) {
+      resultDiv.innerHTML = `❌ ${data.error}`;
       return;
     }
 
     resultDiv.innerHTML = `
       🎉 Compte créé avec succès !<br><br>
-      <strong>Ton token Pollybuzz :</strong><br>
+      <strong>Ton token :</strong><br>
       <code>${data.token}</code>
     `;
   } catch {
@@ -69,7 +72,7 @@ async function register() {
 }
 
 // =======================
-//     MOT DE PASSE OUBLIÉ
+//   MOT DE PASSE OUBLIÉ
 // =======================
 async function forgotPassword() {
   const username = document.getElementById("email").value;
@@ -80,20 +83,26 @@ async function forgotPassword() {
     return;
   }
 
-  resultDiv.innerHTML = "Réinitialisation en cours...";
+  resultDiv.innerHTML = "Réinitialisation du mot de passe...";
 
   try {
-    const res = await fetch(`${API_URL}/profile/update`, {
+    const res = await fetch(`${API_URL}/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profile: { resetPassword: true, tempPassword: "pollybuzz123" }
-      })
+      body: JSON.stringify({ username })
     });
 
+    const data = await res.json();
+
+    if (!res.ok) {
+      resultDiv.innerHTML = `❌ ${data.error}`;
+      return;
+    }
+
     resultDiv.innerHTML = `
-      🔑 Mot de passe temporaire généré : <code>pollybuzz123</code><br>
-      Connecte-toi avec ce mot de passe puis change-le dans ton profil.
+      🔑 Nouveau mot de passe temporaire :<br>
+      <code>${data.tempPassword}</code><br><br>
+      Connecte-toi puis change-le dans ton profil.
     `;
   } catch {
     resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
@@ -101,7 +110,7 @@ async function forgotPassword() {
 }
 
 // =======================
-//     PAGE PROFIL
+//     PROFIL
 // =======================
 async function showProfile() {
   const token = localStorage.getItem("token");
@@ -116,15 +125,21 @@ async function showProfile() {
 
   try {
     const res = await fetch(`${API_URL}/profile`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { "Authorization": `Bearer ${token}` }
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      resultDiv.innerHTML = `❌ ${data.error}`;
+      return;
+    }
 
     resultDiv.innerHTML = `
       👤 <strong>Profil de ${data.username}</strong><br><br>
       Premium : ${data.profile.premium ? "✅ Oui" : "❌ Non"}<br>
       Bonus : ${Object.keys(data.profile.bonuses).join(", ")}<br><br>
+
       <button onclick="logout()">Déconnexion</button>
     `;
   } catch {
