@@ -30,8 +30,20 @@ async function login() {
 
     resultDiv.innerHTML = `
       ✅ Connexion réussie !<br><br>
+
+      <strong>Ton token :</strong><br>
+      <code id="loginToken" style="cursor:pointer;">${data.token}</code><br>
+      <small>(Clique pour copier)</small><br><br>
+
       <button onclick="showProfile()">Voir mon profil</button>
     `;
+
+    // Copie du token
+    document.getElementById("loginToken").onclick = () => {
+      navigator.clipboard.writeText(data.token);
+      resultDiv.innerHTML += "<br>📋 Token copié !";
+    };
+
   } catch {
     resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
   }
@@ -63,9 +75,18 @@ async function register() {
 
     resultDiv.innerHTML = `
       🎉 Compte créé avec succès !<br><br>
+
       <strong>Ton token :</strong><br>
-      <code>${data.token}</code>
+      <code id="registerToken" style="cursor:pointer;">${data.token}</code><br>
+      <small>(Clique pour copier)</small><br><br>
     `;
+
+    // Copie du token
+    document.getElementById("registerToken").onclick = () => {
+      navigator.clipboard.writeText(data.token);
+      resultDiv.innerHTML += "<br>📋 Token copié !";
+    };
+
   } catch {
     resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
   }
@@ -101,9 +122,16 @@ async function forgotPassword() {
 
     resultDiv.innerHTML = `
       🔑 Nouveau mot de passe temporaire :<br>
-      <code>${data.tempPassword}</code><br><br>
-      Connecte-toi puis change-le dans ton profil.
+      <code id="tempPass" style="cursor:pointer;">${data.tempPassword}</code><br>
+      <small>(Clique pour copier)</small><br><br>
     `;
+
+    // Copie du mot de passe temporaire
+    document.getElementById("tempPass").onclick = () => {
+      navigator.clipboard.writeText(data.tempPassword);
+      resultDiv.innerHTML += "<br>📋 Mot de passe copié !";
+    };
+
   } catch {
     resultDiv.innerHTML = "❌ Erreur de connexion au serveur.";
   }
@@ -137,11 +165,22 @@ async function showProfile() {
 
     resultDiv.innerHTML = `
       👤 <strong>Profil de ${data.username}</strong><br><br>
+
+      Token : <code id="profileToken" style="cursor:pointer;">${token}</code><br>
+      <small>(Clique pour copier)</small><br><br>
+
       Premium : ${data.profile.premium ? "✅ Oui" : "❌ Non"}<br>
       Bonus : ${Object.keys(data.profile.bonuses).join(", ")}<br><br>
 
       <button onclick="logout()">Déconnexion</button>
     `;
+
+    // Copie du token dans le profil
+    document.getElementById("profileToken").onclick = () => {
+      navigator.clipboard.writeText(token);
+      resultDiv.innerHTML += "<br>📋 Token copié !";
+    };
+
   } catch {
     resultDiv.innerHTML = "❌ Erreur de chargement du profil.";
   }
